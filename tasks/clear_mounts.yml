@@ -1,0 +1,12 @@
+---
+- name: find mount service files
+  find:
+    paths: /etc/systemd/system/
+    patterns: '*.mount'
+  register: existing_mount_service_files
+
+- name: remove mount services
+  ansible.builtin.include_tasks: remove_mount.yml
+  loop: "{{ systemd_mounts | excessive_mount_files(existing_mount_service_files.files | map(attribute='path')) }}"
+  loop_control:
+    loop_var: mount

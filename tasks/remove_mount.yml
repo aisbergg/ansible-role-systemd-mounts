@@ -1,0 +1,29 @@
+---
+- name: create service names
+  ansible.builtin.set_fact:
+    mount_service_name: "{{ mount.where | mandatory | systemd_mount_file_name(suffix='mount') }}"
+    automount_service_name: "{{ mount.where | mandatory | systemd_mount_file_name(suffix='automount') }}"
+
+- name: disable mount {{ mount.where }}
+  ansible.builtin.systemd:
+    name: "{{ mount_service_name }}"
+    state: stopped
+    enabled: false
+  when: mount_service_name in ansible_facts.services
+
+- name: remove mount service file for {{ mount.where }}
+  file:
+    path: "/etc/systemd/system/{{ mount_service_name }}"
+    state: absent
+
+- name: disable automount {{ mount.where }}
+  ansible.builtin.systemd:
+    name: "{{ automount_service_name }}"
+    state: stopped
+    enabled: false
+  when: automount_service_name in ansible_facts.services
+
+- name: remove automount service file for {{ mount.where }}
+  ansible.builtin.file:
+    path: "/etc/systemd/system/{{ automount_service_name }}"
+    state: absent

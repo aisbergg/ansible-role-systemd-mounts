@@ -1,0 +1,6 @@
+---
+# systemd mounts to be created
+systemd_mounts: []
+
+# remove undefined mount points from /etc/systemd/system
+systemd_mounts_clear: false

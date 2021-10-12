@@ -1,0 +1,45 @@
+---
+- name: create service names
+  ansible.builtin.set_fact:
+    mount_service_name: "{{ mount.where | mandatory | systemd_mount_file_name(suffix='mount') }}"
+    automount_service_name: "{{ mount.where | mandatory | systemd_mount_file_name(suffix='automount') }}"
+
+- name: create mount service for {{ mount.where }}
+  ansible.builtin.template:
+    src: systemd_mount.j2
+    dest: "/etc/systemd/system/{{ mount_service_name }}"
+    owner: root
+    group: root
+    mode: 0600
+    lstrip_blocks: true
+  register: mount_service_file_state
+
+- name: enable mount {{ mount.where }}
+  ansible.builtin.systemd:
+    name: "{{ mount_service_name }}"
+    enabled: true
+    state: "{{ changed | ternary('restarted', 'started') }}"
+    daemon_reload: "{{ changed }}"
+  vars:
+    changed: "{{ mount_service_file_state.changed | default(false) }}"
+
+- when: mount.auto_mount | default(false)
+  block:
+    - name: create automount service file for {{ mount.where }}
+      ansible.builtin.template:
+        src: systemd_automount.j2
+        dest: "/etc/systemd/system/{{ automount_service_name }}"
+        owner: root
+        group: root
+        mode: 0600
+        lstrip_blocks: true
+      register: automount_service_file_state
+
+    - name: enable automount {{ mount.where }}
+      ansible.builtin.systemd:
+        name: "{{ automount_service_name }}"
+        enabled: true
+        state: "{{ changed | ternary('restarted', 'started') }}"
+        daemon_reload: "{{ changed }}"
+      vars:
+        changed: "{{ mount_service_file_state.changed | default(false) }}"

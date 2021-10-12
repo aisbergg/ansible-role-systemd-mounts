@@ -1,0 +1,23 @@
+---
+- name: gather service facts
+  ansible.builtin.service_facts:
+
+- name: remove mount services
+  tags: [systemd-mounts, mounts]
+  ansible.builtin.include_tasks: remove_mount.yml
+  when: not (mount.enabled | default(true))
+  loop: "{{ systemd_mounts }}"
+  loop_control:
+    loop_var: mount
+
+- name: add mount services
+  tags: [systemd-mounts, mounts]
+  ansible.builtin.include_tasks: add_mount.yml
+  when: mount.enabled | default(true)
+  loop: "{{ systemd_mounts }}"
+  loop_control:
+    loop_var: mount
+
+- name: clear out undefined mount services
+  ansible.builtin.include_tasks: clear_mounts.yml
+  when: systemd_mounts_clear

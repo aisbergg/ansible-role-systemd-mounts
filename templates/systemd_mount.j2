@@ -1,0 +1,26 @@
+{% macro option(name, value) %}{% if value is defined and value %}{{ name }}={{ value }}
+{% endif %}{% endmacro %}
+[Unit]
+{{ option('Description', mount.description | default('mount ' ~ (mount.where | mandatory))) -}}
+{{ option('After', mount.after) -}}
+{{ option('Requires', mount.requires) -}}
+{{ option('Wants', mount.wants) -}}
+{{ option('Before', mount.before) -}}
+# if set to true, it will take care of adding the correct 'After' and 'Wants'
+# for the appropriate mount type
+{{ option('DefaultDependencies', mount.default_dependencies | default(True)) }}
+
+[Mount]
+{{ option('What', mount.what | mandatory) -}}
+{{ option('Where', mount.where | mandatory) -}}
+{{ option('Type', mount.type) -}}
+{{ option('Options', mount.options) -}}
+{{ option('SloppyOptions', mount.sloppy_options) -}}
+{{ option('LazyUnmount', mount.lazy_unmount) -}}
+{{ option('ReadWriteOnly', mount.read_write_only) -}}
+{{ option('ForceUnmount', mount.force_unmount) -}}
+{{ option('DirectoryMode', mount.mode) -}}
+{{ option('TimeoutSec', mount.timeout) }}
+
+[Install]
+WantedBy=multi-user.target

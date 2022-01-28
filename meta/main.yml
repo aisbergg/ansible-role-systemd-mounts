@@ -7,7 +7,7 @@ galaxy_info:
   role_name: systemd_mounts
   description: Add or remove Systemd mounts.
   company: none
-  issue_tracker_url: https://github.com/Aisbergg/ansible-role-systemd-mounts/issues
+  issue_tracker_url: https://github.com/aisbergg/ansible-role-systemd-mounts/issues
   license: MIT
   min_ansible_version: 2.10
 
